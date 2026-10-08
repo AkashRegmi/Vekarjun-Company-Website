@@ -1,0 +1,20 @@
+{
+  "name": "vekarjun-backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "seed:admin": "node src/scripts/seedAdmin.js",
+    "lint": "node --check src/server.js && node --check src/app.js && node --check src/config/env.js && node --check src/config/database.js && node --check src/models/Inquiry.js && node --check src/models/Admin.js && node --check src/models/SiteContent.js && node --check src/services/inquiryService.js && node --check src/services/authService.js && node --check src/services/siteContentService.js && node --check src/middleware/authMiddleware.js && node --check src/middleware/errorMiddleware.js && node --check src/controllers/contactController.js && node --check src/controllers/adminController.js && node --check src/controllers/siteContentController.js && node --check src/routes/contactRoutes.js && node --check src/routes/adminRoutes.js && node --check src/routes/siteContentRoutes.js && node --check src/scripts/seedAdmin.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.13.2"
+  }
+}

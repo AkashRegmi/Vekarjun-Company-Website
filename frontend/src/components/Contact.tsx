@@ -1,6 +1,9 @@
-import { useState, type FormEvent } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { Mail, Phone, MapPin, Clock, CheckCircle2 } from 'lucide-react';
 import { contactInfo, serviceOptions, budgetOptions } from '../data/content';
+import { apiRequest } from '../lib/api';
 
 type FormState = {
   name: string;
@@ -12,39 +15,32 @@ type FormState = {
   details: string;
 };
 
-const initialState: FormState = {
-  name: '', company: '', email: '', phone: '', service: '', budget: '', details: '',
-};
-
 export default function Contact() {
-  const [form, setForm] = useState<FormState>(initialState);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormState>({
+    defaultValues: {
+      name: '',
+      company: '',
+      email: '',
+      phone: '',
+      service: '',
+      budget: '',
+      details: '',
+    },
+  });
 
-  function update<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((f) => ({ ...f, [key]: value }));
-  }
-
-  function validate(): boolean {
-    const next: Partial<Record<keyof FormState, string>> = {};
-    if (!form.name.trim()) next.name = 'Name is required.';
-    if (!form.email.trim()) next.email = 'Email is required.';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = 'Enter a valid email address.';
-    if (!form.service) next.service = 'Select a service.';
-    if (!form.details.trim()) next.details = 'Tell us a bit about the project.';
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  }
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!validate()) return;
-    setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 900));
-    setSubmitting(false);
-    setSubmitted(true);
-  }
+  const inquiryMutation = useMutation({
+    mutationFn: (inquiry: FormState) => apiRequest<{ message: string }>('/api/inquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(inquiry),
+    }),
+    onSuccess: () => setSubmitted(true),
+  });
 
   const inputClass =
     'w-full bg-[var(--color-ink)] border border-[var(--color-line)] rounded-lg px-4 py-3 text-sm text-[var(--color-paper)] placeholder:text-[var(--color-mist)] focus:border-[var(--color-blue-soft)] outline-none transition-colors duration-200';
@@ -89,59 +85,74 @@ export default function Contact() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} noValidate className="grid sm:grid-cols-2 gap-5">
+            <form onSubmit={handleSubmit((inquiry) => inquiryMutation.mutate(inquiry))} noValidate className="grid sm:grid-cols-2 gap-5">
               <div className="sm:col-span-1">
                 <label htmlFor="name" className="block text-xs text-[var(--color-mist)] mb-2">Name</label>
-                <input id="name" className={inputClass} value={form.name}
-                  onChange={(e) => update('name', e.target.value)} placeholder="Your full name" />
-                {errors.name && <p className="mt-1.5 text-xs text-red-400">{errors.name}</p>}
+                <input id="name" maxLength={120} className={inputClass} {...register('name', {
+                  required: 'Name is required.',
+                  maxLength: { value: 120, message: 'Name must be 120 characters or fewer.' },
+                })} placeholder="Your full name" />
+                {errors.name && <p className="mt-1.5 text-xs text-red-400">{errors.name.message}</p>}
               </div>
               <div className="sm:col-span-1">
                 <label htmlFor="company" className="block text-xs text-[var(--color-mist)] mb-2">Company</label>
-                <input id="company" className={inputClass} value={form.company}
-                  onChange={(e) => update('company', e.target.value)} placeholder="Company name" />
+                <input id="company" maxLength={120} className={inputClass} {...register('company', {
+                  maxLength: { value: 120, message: 'Company must be 120 characters or fewer.' },
+                })} placeholder="Company name" />
+                {errors.company && <p className="mt-1.5 text-xs text-red-400">{errors.company.message}</p>}
               </div>
               <div className="sm:col-span-1">
                 <label htmlFor="email" className="block text-xs text-[var(--color-mist)] mb-2">Email</label>
-                <input id="email" type="email" className={inputClass} value={form.email}
-                  onChange={(e) => update('email', e.target.value)} placeholder="you@company.com" />
-                {errors.email && <p className="mt-1.5 text-xs text-red-400">{errors.email}</p>}
+                <input id="email" type="email" maxLength={254} className={inputClass} {...register('email', {
+                  required: 'Email is required.',
+                  pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email address.' },
+                  maxLength: { value: 254, message: 'Email must be 254 characters or fewer.' },
+                })} placeholder="you@company.com" />
+                {errors.email && <p className="mt-1.5 text-xs text-red-400">{errors.email.message}</p>}
               </div>
               <div className="sm:col-span-1">
                 <label htmlFor="phone" className="block text-xs text-[var(--color-mist)] mb-2">Phone</label>
-                <input id="phone" className={inputClass} value={form.phone}
-                  onChange={(e) => update('phone', e.target.value)} placeholder="Optional" />
+                <input id="phone" maxLength={40} className={inputClass} {...register('phone', {
+                  maxLength: { value: 40, message: 'Phone must be 40 characters or fewer.' },
+                })} placeholder="Optional" />
+                {errors.phone && <p className="mt-1.5 text-xs text-red-400">{errors.phone.message}</p>}
               </div>
               <div className="sm:col-span-1">
                 <label htmlFor="service" className="block text-xs text-[var(--color-mist)] mb-2">Service</label>
-                <select id="service" className={inputClass} value={form.service}
-                  onChange={(e) => update('service', e.target.value)}>
+                <select id="service" className={inputClass} {...register('service', {
+                  required: 'Select a service.',
+                  maxLength: { value: 120, message: 'Service must be 120 characters or fewer.' },
+                })}>
                   <option value="">Select a service</option>
                   {serviceOptions.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
-                {errors.service && <p className="mt-1.5 text-xs text-red-400">{errors.service}</p>}
+                {errors.service && <p className="mt-1.5 text-xs text-red-400">{errors.service.message}</p>}
               </div>
               <div className="sm:col-span-1">
                 <label htmlFor="budget" className="block text-xs text-[var(--color-mist)] mb-2">Budget</label>
-                <select id="budget" className={inputClass} value={form.budget}
-                  onChange={(e) => update('budget', e.target.value)}>
+                <select id="budget" className={inputClass} {...register('budget', {
+                  maxLength: { value: 80, message: 'Budget must be 80 characters or fewer.' },
+                })}>
                   <option value="">Select a range</option>
                   {budgetOptions.map((b) => <option key={b} value={b}>{b}</option>)}
                 </select>
               </div>
               <div className="sm:col-span-2">
                 <label htmlFor="details" className="block text-xs text-[var(--color-mist)] mb-2">Project details</label>
-                <textarea id="details" rows={4} className={inputClass} value={form.details}
-                  onChange={(e) => update('details', e.target.value)} placeholder="What are you looking to build?" />
-                {errors.details && <p className="mt-1.5 text-xs text-red-400">{errors.details}</p>}
+                <textarea id="details" rows={4} maxLength={5000} className={inputClass} {...register('details', {
+                  required: 'Tell us a bit about the project.',
+                  maxLength: { value: 5000, message: 'Project details must be 5000 characters or fewer.' },
+                })} placeholder="What are you looking to build?" />
+                {errors.details && <p className="mt-1.5 text-xs text-red-400">{errors.details.message}</p>}
               </div>
               <div className="sm:col-span-2">
+                {inquiryMutation.error && <p role="alert" className="mb-4 text-sm text-red-400">{inquiryMutation.error.message}</p>}
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={inquiryMutation.isPending}
                   className="inline-flex items-center gap-2 rounded-full bg-[var(--color-blue)] text-white text-sm font-medium px-6 py-3.5 hover:bg-[var(--color-blue-soft)] transition-colors duration-200 disabled:opacity-60"
                 >
-                  {submitting ? 'Sending…' : 'Send Project Inquiry'} <span aria-hidden="true">→</span>
+                  {inquiryMutation.isPending ? 'Sending…' : 'Send Project Inquiry'} <span aria-hidden="true">→</span>
                 </button>
               </div>
             </form>

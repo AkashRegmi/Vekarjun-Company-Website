@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import ArticlePage from './components/ArticlePage';
 import ScrollReveal from './components/ScrollReveal';
@@ -18,6 +18,9 @@ import FinalCTA from './components/FinalCTA';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const AdminLogin = lazy(() => import('./components/AdminLogin'));
+
 export default function App() {
   const { pathname, hash } = useLocation();
 
@@ -31,9 +34,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[var(--color-ink)] text-[var(--color-paper)] font-body">
-      <Navbar />
+      {!pathname.startsWith('/admin') && <Navbar />}
       <main>
         <Routes>
+          <Route path="/admin" element={<Suspense fallback={<p className="p-10 text-sm text-[var(--color-mist)]">Loading admin dashboard…</p>}><AdminDashboard /></Suspense>} />
+          <Route path="/admin/login" element={<Suspense fallback={<p className="p-10 text-sm text-[var(--color-mist)]">Loading admin sign in…</p>}><AdminLogin /></Suspense>} />
           <Route
             path="/"
             element={
@@ -58,7 +63,7 @@ export default function App() {
           <Route path="*" element={<ArticlePage />} />
         </Routes>
       </main>
-      <Footer />
+      {!pathname.startsWith('/admin') && <Footer />}
     </div>
   );
 }

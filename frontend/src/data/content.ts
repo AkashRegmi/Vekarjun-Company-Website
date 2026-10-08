@@ -167,42 +167,6 @@ export const industries = [
   { name: 'Startups', description: 'MVPs and infrastructure built to move fast.', icon: 'Rocket' },
 ];
 
-export type CaseStudy = {
-  name: string;
-  industry: string;
-  problem: string;
-  solution: string;
-  technologies: string[];
-  result: string;
-};
-
-export const caseStudies: CaseStudy[] = [
-  {
-    name: 'E-commerce Growth Platform',
-    industry: 'E-commerce',
-    problem: 'Low conversion rate and a checkout experience that lost customers before purchase.',
-    solution: 'Redesigned web platform, technical SEO, analytics implementation, and email automation.',
-    technologies: ['React', 'Next.js', 'PostgreSQL', 'Google Analytics'],
-    result: '[Placeholder — measurable result to be added]',
-  },
-  {
-    name: 'AI Support Assistant',
-    industry: 'Professional Services',
-    problem: 'Support team overwhelmed by repetitive client questions and slow response times.',
-    solution: 'Custom AI assistant with RAG over internal knowledge base, integrated into existing CRM.',
-    technologies: ['LLM Integration', 'Vector Database', 'Node.js', 'CRM API'],
-    result: '[Placeholder — measurable result to be added]',
-  },
-  {
-    name: 'Operations Automation Suite',
-    industry: 'Real Estate',
-    problem: 'Manual data entry across disconnected tools was slowing down the sales cycle.',
-    solution: 'Workflow automation connecting listing, CRM, and communication tools via API integrations.',
-    technologies: ['Workflow Automation', 'API Integrations', 'Python', 'Cloud Functions'],
-    result: '[Placeholder — measurable result to be added]',
-  },
-];
-
 export const techStack = {
   Frontend: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS'],
   Backend: ['Node.js', 'Python', 'REST APIs', 'PostgreSQL', 'MongoDB'],
@@ -210,27 +174,6 @@ export const techStack = {
   Cloud: ['AWS', 'Docker', 'Cloud Platforms', 'CI/CD'],
   Marketing: ['Google Analytics', 'Search Console', 'SEO Tools', 'Marketing Automation'],
 };
-
-export const testimonials = [
-  {
-    quote: 'The new website gives our customers a much clearer picture of what we offer. The team kept communication straightforward and made the whole process easy to follow.',
-    name: 'Aarav Shrestha',
-    role: 'Founder',
-    company: 'Himalayan Techworks',
-  },
-  {
-    quote: 'We needed help connecting several parts of our workflow. The project gave our team a more organized way to handle everyday requests and follow up with customers.',
-    name: 'Sanjana Karki',
-    role: 'Operations Lead',
-    company: 'Everest Digital Labs',
-  },
-  {
-    quote: 'The site is easier to navigate, and we now have a stronger foundation for sharing our services online. We appreciated the practical advice at each stage.',
-    name: 'Nischal Gurung',
-    role: 'Managing Director',
-    company: 'Kathmandu Commerce Co.',
-  },
-];
 
 export const articles = [
   {
